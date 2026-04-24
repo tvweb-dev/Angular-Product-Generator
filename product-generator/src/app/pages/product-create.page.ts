@@ -137,7 +137,12 @@ import { ProductStoreService } from '../state/product-store.service';
 
         <label>
           Base Quantity (optional)
-          <input type="number" min="0" [value]="baseQuantity" (input)="onBaseQuantityInput($event)" />
+          <input type="number" min="0" [value]="baseQuantity" (input)="onBaseQuantityInput($event)" [disabled]="!useBaseQuantity" />
+        </label>
+
+        <label class="toggle-row">
+          <input type="checkbox" [checked]="useBaseQuantity" (change)="onUseBaseQuantityChange($event)" />
+          Use Base Quantity (optional)
         </label>
 
         <label>
@@ -627,6 +632,7 @@ export class ProductCreatePage {
   protected confidenceScore = 0;
   protected basePrice = 99;
   protected baseQuantity = 10;
+  protected useBaseQuantity = true;
   protected brand = '';
   protected manufacturer = '';
   protected material = '';
@@ -679,11 +685,14 @@ export class ProductCreatePage {
         name: `${this.namePrefix} ${index + 1}`,
         sku: `${this.skuPrefix}-${id}`,
         price: Number((this.basePrice + index * 2.5).toFixed(2)),
-        quantity: this.baseQuantity + index,
         imageUrl: this.useUniqueImageUrl ? this.buildUniqueImageUrl(id, index) : this.imageUrl,
         retired: this.retired,
         category: validCategory
       };
+
+      if (this.useBaseQuantity) {
+        product.quantity = this.baseQuantity + index;
+      }
 
       if (this.hidden) {
         product.hidden = true;
@@ -896,6 +905,10 @@ export class ProductCreatePage {
 
   protected onBaseQuantityInput(event: Event): void {
     this.baseQuantity = this.readNumber(event, this.baseQuantity);
+  }
+
+  protected onUseBaseQuantityChange(event: Event): void {
+    this.useBaseQuantity = this.readChecked(event);
   }
 
   protected onBrandInput(event: Event): void {

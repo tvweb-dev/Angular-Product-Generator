@@ -72,7 +72,9 @@ import { ProductStoreService } from '../state/product-store.service';
                 <p>Material: {{ product.material }}</p>
               }
               <p class="price">$ {{ product.price }}</p>
-              <p>Qty: {{ product.quantity }}</p>
+              @if (product.quantity !== undefined) {
+                <p>Qty: {{ product.quantity }}</p>
+              }
               @if (product.weightKg) {
                 <p>Weight: {{ product.weightKg }} kg</p>
               }
@@ -90,10 +92,6 @@ import { ProductStoreService } from '../state/product-store.service';
               }
               @if (product.notes) {
                 <p>Notes: {{ product.notes }}</p>
-              }
-              <p>Retired: {{ product.retired ? 'Yes' : 'No' }}</p>
-              @if (product.hidden) {
-                <p class="tag">Hidden</p>
               }
               @if (product.onSale && product.discountPercentage) {
                 <p class="tag">On sale: {{ product.discountPercentage }}% off</p>
@@ -568,19 +566,14 @@ export class ProductsListPage {
       ...(product.manufacturer ? [`  <p>Manufacturer: ${product.manufacturer}</p>`] : []),
       ...(product.material ? [`  <p>Material: ${product.material}</p>`] : []),
       `  <p class="price">$ ${product.price}</p>`,
-      `  <p>Qty: ${product.quantity}</p>`,
+      ...(product.quantity !== undefined ? [`  <p>Qty: ${product.quantity}</p>`] : []),
       ...(product.weightKg ? [`  <p>Weight: ${product.weightKg} kg</p>`] : []),
       ...(product.weightLb ? [`  <p>Weight: ${product.weightLb} lb</p>`] : []),
       ...(product.weightG ? [`  <p>Weight: ${product.weightG} g</p>`] : []),
       ...(product.rating ? [`  <p>Rating: ${product.rating}/5</p>`] : []),
       ...(product.warrantyMonths ? [`  <p>Warranty: ${product.warrantyMonths} months</p>`] : []),
-      ...(product.notes ? [`  <p>Notes: ${product.notes}</p>`] : []),
-      `  <p>Retired: ${product.retired ? 'Yes' : 'No'}</p>`
+      ...(product.notes ? [`  <p>Notes: ${product.notes}</p>`] : [])
     ];
-
-    if (product.hidden) {
-      lines.push(`  <p class="tag">Hidden</p>`);
-    }
 
     if (product.onSale && product.discountPercentage) {
       lines.push(`  <p class="tag">On sale: ${product.discountPercentage}% off</p>`);

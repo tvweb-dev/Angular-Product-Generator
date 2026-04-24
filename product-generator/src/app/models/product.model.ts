@@ -10,7 +10,7 @@ export interface Product {
   name: string;
   sku: string;
   price: number;
-  quantity: number;
+  quantity?: number;
   imageUrl: string;
   retired: boolean;
   hidden?: boolean;
