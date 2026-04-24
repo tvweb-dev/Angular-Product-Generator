@@ -26,8 +26,71 @@ import { ProductStoreService } from '../state/product-store.service';
               <h3>{{ product.name }}</h3>
               <p class="sku">SKU: {{ product.sku }}</p>
               <p>{{ product.category }}</p>
+              @if (product.objectType) {
+                <p>Type: {{ product.objectType }}</p>
+              }
+              @if (product.status) {
+                <p>Status: {{ product.status }}</p>
+              }
+              @if (product.owner) {
+                <p>Owner: {{ product.owner }}</p>
+              }
+              @if (product.location) {
+                <p>Location: {{ product.location }}</p>
+              }
+              @if (product.address) {
+                <p>Address: {{ product.address }}</p>
+              }
+              @if (product.city) {
+                <p>City: {{ product.city }}</p>
+              }
+              @if (product.stateProvince) {
+                <p>State/Province: {{ product.stateProvince }}</p>
+              }
+              @if (product.zipPostalCode) {
+                <p>Zip/Postal Code: {{ product.zipPostalCode }}</p>
+              }
+              @if (product.country) {
+                <p>Country: {{ product.country }}</p>
+              }
+              @if (product.referenceCode) {
+                <p>Ref: {{ product.referenceCode }}</p>
+              }
+              @if (product.priority) {
+                <p>Priority: {{ product.priority }}</p>
+              }
+              @if (product.confidenceScore) {
+                <p>Confidence: {{ product.confidenceScore }}</p>
+              }
+              @if (product.brand) {
+                <p>Brand: {{ product.brand }}</p>
+              }
+              @if (product.manufacturer) {
+                <p>Manufacturer: {{ product.manufacturer }}</p>
+              }
+              @if (product.material) {
+                <p>Material: {{ product.material }}</p>
+              }
               <p class="price">$ {{ product.price }}</p>
               <p>Qty: {{ product.quantity }}</p>
+              @if (product.weightKg) {
+                <p>Weight: {{ product.weightKg }} kg</p>
+              }
+              @if (product.weightLb) {
+                <p>Weight: {{ product.weightLb }} lb</p>
+              }
+              @if (product.weightG) {
+                <p>Weight: {{ product.weightG }} g</p>
+              }
+              @if (product.rating) {
+                <p>Rating: {{ product.rating }}/5</p>
+              }
+              @if (product.warrantyMonths) {
+                <p>Warranty: {{ product.warrantyMonths }} months</p>
+              }
+              @if (product.notes) {
+                <p>Notes: {{ product.notes }}</p>
+              }
               <p>Retired: {{ product.retired ? 'Yes' : 'No' }}</p>
               @if (product.hidden) {
                 <p class="tag">Hidden</p>
@@ -35,11 +98,25 @@ import { ProductStoreService } from '../state/product-store.service';
               @if (product.onSale && product.discountPercentage) {
                 <p class="tag">On sale: {{ product.discountPercentage }}% off</p>
               }
+              @if (product.freeShipping) {
+                <p class="tag">Free shipping</p>
+              }
+              @if (product.digitalDownload) {
+                <p class="tag">Digital download</p>
+              }
+              @if (product.requiresAssembly) {
+                <p class="tag">Assembly required</p>
+              }
+              @if (product.taxable) {
+                <p class="tag">Taxable</p>
+              }
               <div class="actions">
                 <a [routerLink]="['/products', product.id]">View Details</a>
-                <button type="button" class="cart" (click)="toggleCart(product.id)">
-                  {{ isInCart(product.id) ? 'Remove from Cart' : 'Add to Cart' }}
-                </button>
+                @if (product.includeAddToCartButton !== false) {
+                  <button type="button" class="cart" (click)="toggleCart(product.id)">
+                    {{ isInCart(product.id) ? 'Remove from Cart' : 'Add to Cart' }}
+                  </button>
+                }
                 <button type="button" class="ghost" (click)="toggleCodeView(product.id)">
                   {{ isCodeVisible(product.id) ? 'Hide Code/CSS' : 'View Code/CSS' }}
                 </button>
@@ -475,8 +552,29 @@ export class ProductsListPage {
       `  <h3>${product.name}</h3>`,
       `  <p class="sku">SKU: ${product.sku}</p>`,
       `  <p>${product.category}</p>`,
+      ...(product.objectType ? [`  <p>Type: ${product.objectType}</p>`] : []),
+      ...(product.status ? [`  <p>Status: ${product.status}</p>`] : []),
+      ...(product.owner ? [`  <p>Owner: ${product.owner}</p>`] : []),
+      ...(product.location ? [`  <p>Location: ${product.location}</p>`] : []),
+      ...(product.address ? [`  <p>Address: ${product.address}</p>`] : []),
+      ...(product.city ? [`  <p>City: ${product.city}</p>`] : []),
+      ...(product.stateProvince ? [`  <p>State/Province: ${product.stateProvince}</p>`] : []),
+      ...(product.zipPostalCode ? [`  <p>Zip/Postal Code: ${product.zipPostalCode}</p>`] : []),
+      ...(product.country ? [`  <p>Country: ${product.country}</p>`] : []),
+      ...(product.referenceCode ? [`  <p>Ref: ${product.referenceCode}</p>`] : []),
+      ...(product.priority ? [`  <p>Priority: ${product.priority}</p>`] : []),
+      ...(product.confidenceScore ? [`  <p>Confidence: ${product.confidenceScore}</p>`] : []),
+      ...(product.brand ? [`  <p>Brand: ${product.brand}</p>`] : []),
+      ...(product.manufacturer ? [`  <p>Manufacturer: ${product.manufacturer}</p>`] : []),
+      ...(product.material ? [`  <p>Material: ${product.material}</p>`] : []),
       `  <p class="price">$ ${product.price}</p>`,
       `  <p>Qty: ${product.quantity}</p>`,
+      ...(product.weightKg ? [`  <p>Weight: ${product.weightKg} kg</p>`] : []),
+      ...(product.weightLb ? [`  <p>Weight: ${product.weightLb} lb</p>`] : []),
+      ...(product.weightG ? [`  <p>Weight: ${product.weightG} g</p>`] : []),
+      ...(product.rating ? [`  <p>Rating: ${product.rating}/5</p>`] : []),
+      ...(product.warrantyMonths ? [`  <p>Warranty: ${product.warrantyMonths} months</p>`] : []),
+      ...(product.notes ? [`  <p>Notes: ${product.notes}</p>`] : []),
       `  <p>Retired: ${product.retired ? 'Yes' : 'No'}</p>`
     ];
 
@@ -487,10 +585,24 @@ export class ProductsListPage {
     if (product.onSale && product.discountPercentage) {
       lines.push(`  <p class="tag">On sale: ${product.discountPercentage}% off</p>`);
     }
+    if (product.freeShipping) {
+      lines.push(`  <p class="tag">Free shipping</p>`);
+    }
+    if (product.digitalDownload) {
+      lines.push(`  <p class="tag">Digital download</p>`);
+    }
+    if (product.requiresAssembly) {
+      lines.push(`  <p class="tag">Assembly required</p>`);
+    }
+    if (product.taxable) {
+      lines.push(`  <p class="tag">Taxable</p>`);
+    }
 
     lines.push(`  <div class="actions">`);
     lines.push(`    <a href="#">View Details</a>`);
-    lines.push(`    <button type="button" class="cart">Add to Cart</button>`);
+    if (product.includeAddToCartButton !== false) {
+      lines.push(`    <button type="button" class="cart">Add to Cart</button>`);
+    }
     lines.push(`    <button type="button" class="ghost">View Code/CSS</button>`);
     lines.push(`    <button type="button" class="remove">Remove</button>`);
     lines.push(`  </div>`);
