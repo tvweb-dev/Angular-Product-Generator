@@ -1,9 +1,18 @@
 import { Injectable, signal } from '@angular/core';
 import { Product } from '../models/product.model';
 
+export interface ProductGenerationDraft {
+  products: Product[];
+  viewMode: 'individual' | 'array';
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProductStoreService {
   private readonly productsState = signal<Product[]>([]);
+  private readonly generationDraftState = signal<ProductGenerationDraft>({
+    products: [],
+    viewMode: 'individual'
+  });
 
   readonly products = this.productsState.asReadonly();
 
@@ -26,5 +35,16 @@ export class ProductStoreService {
 
   getProductById(id: number): Product | undefined {
     return this.productsState().find((product) => product.id === id);
+  }
+
+  saveGenerationDraft(draft: ProductGenerationDraft): void {
+    this.generationDraftState.set({
+      products: [...draft.products],
+      viewMode: draft.viewMode
+    });
+  }
+
+  getGenerationDraft(): ProductGenerationDraft {
+    return this.generationDraftState();
   }
 }

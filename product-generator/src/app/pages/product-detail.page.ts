@@ -41,6 +41,14 @@ import { ProductStoreService } from '../state/product-store.service';
     </section>
   `,
   styles: `
+    .page {
+      background: #ffffff;
+      border: 1px solid #d9e2ef;
+      border-radius: 16px;
+      padding: 1rem;
+      box-shadow: 0 10px 24px rgba(18, 43, 82, 0.08);
+    }
+
     .page h2 {
       margin-top: 0;
     }
@@ -51,8 +59,8 @@ import { ProductStoreService } from '../state/product-store.service';
 
     .details-card {
       margin: 1rem 0;
-      background: #ffffff;
-      border: 1px solid #d8dce3;
+      background: #fbfdff;
+      border: 1px solid #d9e2ef;
       border-radius: 12px;
       padding: 1rem;
     }
@@ -73,8 +81,22 @@ import { ProductStoreService } from '../state/product-store.service';
 
     a {
       text-decoration: none;
-      color: #0b6ef6;
+      color: #0b63db;
       font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 0.85rem;
+      }
+
+      .details-card {
+        padding: 0.8rem;
+      }
+
+      .details-card img {
+        max-width: 100%;
+      }
     }
   `
 })

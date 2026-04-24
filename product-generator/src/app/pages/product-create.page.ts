@@ -104,7 +104,15 @@ import { ProductStoreService } from '../state/product-store.service';
           <label><input type="checkbox" [checked]="onSale" (change)="onSaleChange($event)" /> On Sale</label>
         </div>
 
-        <button type="submit">Generate Products</button>
+        <div class="form-actions">
+          <button type="submit">Generate Products</button>
+          <a routerLink="/products" class="nav-button" [class.disabled]="!generatedProducts.length" [attr.aria-disabled]="!generatedProducts.length">
+            View Product Cards
+          </a>
+          <button type="button" class="danger" [disabled]="!generatedProducts.length" (click)="clearGeneratedResults()">
+            Clear Generated Results
+          </button>
+        </div>
       </form>
 
       @if (generatedProducts.length) {
@@ -151,6 +159,14 @@ import { ProductStoreService } from '../state/product-store.service';
     </section>
   `,
   styles: `
+    .page {
+      background: #ffffff;
+      border: 1px solid #d9e2ef;
+      border-radius: 16px;
+      padding: 1rem;
+      box-shadow: 0 10px 24px rgba(18, 43, 82, 0.08);
+    }
+
     .page h2 {
       margin-top: 0;
     }
@@ -177,6 +193,8 @@ import { ProductStoreService } from '../state/product-store.service';
       border-radius: 8px;
       padding: 0.55rem 0.65rem;
       font: inherit;
+      box-sizing: border-box;
+      width: 100%;
     }
 
     select {
@@ -185,6 +203,8 @@ import { ProductStoreService } from '../state/product-store.service';
       padding: 0.55rem 0.65rem;
       font: inherit;
       background: #ffffff;
+      box-sizing: border-box;
+      width: 100%;
     }
 
     .checkboxes {
@@ -207,6 +227,13 @@ import { ProductStoreService } from '../state/product-store.service';
       font-weight: 500;
     }
 
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
     button {
       width: fit-content;
       border: 0;
@@ -218,6 +245,28 @@ import { ProductStoreService } from '../state/product-store.service';
       cursor: pointer;
     }
 
+    button:hover {
+      filter: brightness(0.96);
+    }
+
+    .nav-button {
+      width: fit-content;
+      border: 1px solid #0b6ef6;
+      border-radius: 8px;
+      padding: 0.55rem 0.8rem;
+      background: #ffffff;
+      color: #0b6ef6;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .nav-button.disabled {
+      pointer-events: none;
+      opacity: 0.55;
+    }
+
     .ghost {
       border: 1px solid #ccd6e6;
       background: #ffffff;
@@ -226,6 +275,17 @@ import { ProductStoreService } from '../state/product-store.service';
       border-radius: 8px;
       font-size: 0.9rem;
       cursor: pointer;
+    }
+
+    .danger {
+      border: 1px solid #f1b7bb;
+      background: #fff4f5;
+      color: #a52a2f;
+    }
+
+    .danger:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     .results {
@@ -260,9 +320,9 @@ import { ProductStoreService } from '../state/product-store.service';
 
     .product-card,
     .array-wrap {
-      border: 1px solid #d8dce3;
+      border: 1px solid #d9e2ef;
       border-radius: 10px;
-      background: #ffffff;
+      background: #fbfdff;
       padding: 0.75rem;
     }
 
@@ -307,6 +367,51 @@ import { ProductStoreService } from '../state/product-store.service';
       text-decoration: none;
       color: #0b6ef6;
       font-weight: 600;
+    }
+
+    @media (max-width: 700px) {
+      .page {
+        padding: 0.85rem;
+      }
+
+      .form {
+        max-width: 100%;
+      }
+
+      .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .form-actions button,
+      .form-actions .nav-button {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .controls {
+        width: 100%;
+      }
+
+      .controls button {
+        flex: 1;
+      }
+
+      .card-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      textarea {
+        min-height: 180px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .checkboxes {
+        grid-template-columns: 1fr;
+      }
     }
   `
 })
@@ -357,8 +462,8 @@ export class ProductCreatePage {
   protected featured = false;
   protected onSale = false;
 
-  protected generatedProducts: Product[] = [];
-  protected viewMode: 'individual' | 'array' = 'individual';
+  protected generatedProducts: Product[] = this.productStore.getGenerationDraft().products;
+  protected viewMode: 'individual' | 'array' = this.productStore.getGenerationDraft().viewMode;
   protected copyStatus = '';
 
   protected get arrayJson(): string {
@@ -405,10 +510,23 @@ export class ProductCreatePage {
     this.copyStatus = '';
 
     this.productStore.addProducts(this.generatedProducts);
+    this.persistGenerationDraft();
   }
 
   protected setViewMode(mode: 'individual' | 'array'): void {
     this.viewMode = mode;
+    this.persistGenerationDraft();
+  }
+
+  protected clearGeneratedResults(): void {
+    for (const product of this.generatedProducts) {
+      this.productStore.removeProduct(product.id);
+    }
+
+    this.generatedProducts = [];
+    this.viewMode = 'individual';
+    this.copyStatus = '';
+    this.persistGenerationDraft();
   }
 
   protected asJson(product: Product): string {
@@ -510,7 +628,30 @@ export class ProductCreatePage {
   }
 
   private buildUniqueImageUrl(id: number, index: number): string {
-    const seed = encodeURIComponent(`${this.resolvedCategory}-${id}-${index}`);
-    return `https://picsum.photos/seed/${seed}/800/500`;
+    const tags = encodeURIComponent(this.buildImageTags(index));
+    const lock = id * 37 + index;
+    return `https://loremflickr.com/800/500/${tags}?lock=${lock}`;
+  }
+
+  private buildImageTags(index: number): string {
+    const text = `${this.namePrefix} ${this.resolvedCategory} ${this.description} product ${index + 1}`.toLowerCase();
+    const words = text
+      .replace(/[^a-z0-9\s-]/g, ' ')
+      .split(/\s+/)
+      .filter((word) => word.length > 2)
+      .slice(0, 5);
+
+    if (!words.length) {
+      return 'product,technology';
+    }
+
+    return Array.from(new Set(words)).join(',');
+  }
+
+  private persistGenerationDraft(): void {
+    this.productStore.saveGenerationDraft({
+      products: this.generatedProducts,
+      viewMode: this.viewMode
+    });
   }
 }
