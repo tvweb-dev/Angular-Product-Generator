@@ -70,14 +70,9 @@ import { ProductStoreService } from '../state/product-store.service';
           <input type="number" min="0" [value]="baseQuantity" (input)="onBaseQuantityInput($event)" />
         </label>
 
-        <label>
-          Image URL
-          <input
-            type="url"
-            placeholder="https://example.com/image.jpg"
-            [value]="imageUrl"
-            (input)="onImageUrlInput($event)"
-          />
+        <label class="toggle-row">
+          <input type="checkbox" [checked]="useUniqueImageUrl" (change)="onUseUniqueImageChange($event)" />
+          Use unique image address URL for each generated product
         </label>
 
         <label>
@@ -196,6 +191,13 @@ import { ProductStoreService } from '../state/product-store.service';
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       gap: 0.55rem;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-weight: 500;
     }
 
     .checkboxes label {
@@ -347,6 +349,7 @@ export class ProductCreatePage {
   protected basePrice = 99;
   protected baseQuantity = 10;
   protected imageUrl = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80';
+  protected useUniqueImageUrl = false;
   protected description = '';
   protected discountPercentage = 0;
   protected retired = false;
@@ -376,7 +379,7 @@ export class ProductCreatePage {
         sku: `${this.skuPrefix}-${id}`,
         price: Number((this.basePrice + index * 2.5).toFixed(2)),
         quantity: this.baseQuantity + index,
-        imageUrl: this.buildUniqueImageUrl(id, index),
+        imageUrl: this.useUniqueImageUrl ? this.buildUniqueImageUrl(id, index) : this.imageUrl,
         retired: this.retired,
         category: this.resolvedCategory
       };
@@ -453,12 +456,12 @@ export class ProductCreatePage {
     this.baseQuantity = this.readNumber(event, this.baseQuantity);
   }
 
-  protected onImageUrlInput(event: Event): void {
-    this.imageUrl = this.readText(event, this.imageUrl);
-  }
-
   protected onDescriptionInput(event: Event): void {
     this.description = this.readText(event, this.description);
+  }
+
+  protected onUseUniqueImageChange(event: Event): void {
+    this.useUniqueImageUrl = this.readChecked(event);
   }
 
   protected onDiscountInput(event: Event): void {
